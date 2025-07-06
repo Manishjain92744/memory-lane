@@ -1,8 +1,8 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaHeart, FaCloudUploadAlt, FaHome, FaCheck, FaTimes, FaMusic, FaUser } from 'react-icons/fa';
+import { FaHeart, FaCloudUploadAlt, FaHome, FaCheck, FaTimes, FaMusic, FaUser, FaTimes as FaClose } from 'react-icons/fa';
 import axios from 'axios';
 
 const UploadContainer = styled.div`
@@ -462,6 +462,7 @@ const SuccessMessage = styled(motion.div)`
   text-align: center;
   margin-top: 20px;
   font-weight: 600;
+  position: relative;
   
   @media (max-width: 768px) {
     padding: 16px;
@@ -471,6 +472,40 @@ const SuccessMessage = styled(motion.div)`
   @media (max-width: 480px) {
     padding: 12px;
     margin-top: 12px;
+    font-size: 0.9rem;
+  }
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+  }
+  
+  @media (max-width: 768px) {
+    top: 6px;
+    right: 6px;
+    font-size: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    top: 4px;
+    right: 4px;
     font-size: 0.9rem;
   }
 `;
@@ -527,6 +562,9 @@ const UploadPage = ({ currentUser, onLogout }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showPersonDropdown, setShowPersonDropdown] = useState(false);
+  const successTimeoutRef = useRef(null);
+  const [visibleSuccessUploads, setVisibleSuccessUploads] = useState({});
+  const successTimers = useRef({});
 
   const generateHearts = () => {
     const hearts = [];
@@ -616,6 +654,17 @@ const UploadPage = ({ currentUser, onLogout }) => {
         setUploads(prev => prev.map(u => 
           u.id === upload.id ? { ...u, status: 'success', progress: 100 } : u
         ));
+        setVisibleSuccessUploads(prev => ({ ...prev, [upload.id]: true }));
+        if (successTimers.current[upload.id]) clearTimeout(successTimers.current[upload.id]);
+        successTimers.current[upload.id] = setTimeout(() => {
+          setVisibleSuccessUploads(prev => {
+            const updated = { ...prev };
+            updated[upload.id] = false;
+            return updated;
+          });
+          setUploads(prev => prev.filter(u => u.id !== upload.id));
+          successTimers.current[upload.id] = null;
+        }, 10000);
       } catch (error) {
         setUploads(prev => prev.map(u => 
           u.id === upload.id ? { ...u, status: 'error', error: error.message } : u
@@ -625,14 +674,10 @@ const UploadPage = ({ currentUser, onLogout }) => {
 
     setIsUploading(false);
     
-    // Show success message and auto-navigate after successful uploads
+    // Show success message after successful uploads
     const successfulUploads = uploads.filter(u => u.status === 'success');
     if (successfulUploads.length > 0) {
       setShowSuccessMessage(true);
-      sessionStorage.setItem('fromUpload', 'true'); // Mark that we're coming from upload
-      setTimeout(() => {
-        navigate('/gallery');
-      }, 2000); // Navigate to gallery after 2 seconds
     }
   };
 
@@ -672,6 +717,49 @@ const UploadPage = ({ currentUser, onLogout }) => {
     setShowPersonDropdown(false);
     onLogout();
   };
+
+  // Auto-dismiss success message after 5 seconds
+  useEffect(() => {
+    if (showSuccessMessage) {
+      successTimeoutRef.current = setTimeout(() => {
+        setShowSuccessMessage(false);
+      }, 5000);
+    }
+
+    return () => {
+      if (successTimeoutRef.current) {
+        clearTimeout(successTimeoutRef.current);
+      }
+    };
+  }, [showSuccessMessage]);
+
+  const handleCloseSuccessMessage = () => {
+    setShowSuccessMessage(false);
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current);
+    }
+  };
+
+  const handleCloseUploadSuccess = (id) => {
+    setVisibleSuccessUploads(prev => {
+      const updated = { ...prev };
+      updated[id] = false;
+      return updated;
+    });
+    setUploads(prev => prev.filter(u => u.id !== id));
+    if (successTimers.current[id]) {
+      clearTimeout(successTimers.current[id]);
+      successTimers.current[id] = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      Object.values(successTimers.current).forEach(timer => {
+        if (timer) clearTimeout(timer);
+      });
+    };
+  }, []);
 
   return (
     <UploadContainer>
@@ -828,15 +916,33 @@ const UploadPage = ({ currentUser, onLogout }) => {
               </ProgressIcon>
               <ProgressInfo>
                 <ProgressFileName>{upload.file.name}</ProgressFileName>
-                <ProgressStatus>{getStatusText(upload.status)}</ProgressStatus>
-                {upload.status === 'uploading' && (
-                  <ProgressBar>
-                    <ProgressFill
-                      initial={{ width: 0 }}
-                      animate={{ width: `${upload.progress}%` }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </ProgressBar>
+                {upload.status === 'success' && visibleSuccessUploads[upload.id] ? (
+                  <div style={{ position: 'relative', marginTop: 4 }}>
+                    <span style={{ color: '#4CAF50', fontWeight: 600, marginRight: 8 }}>
+                      <FaCheck />
+                    </span>
+                    Uploaded successfully!
+                    <button
+                      onClick={() => handleCloseUploadSuccess(upload.id)}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        right: 0,
+                        background: 'none',
+                        border: 'none',
+                        color: '#fff',
+                        fontSize: '1rem',
+                        cursor: 'pointer',
+                        padding: 2,
+                        lineHeight: 1
+                      }}
+                      aria-label="Close"
+                    >
+                      <FaClose />
+                    </button>
+                  </div>
+                ) : (
+                  <ProgressStatus>{getStatusText(upload.status)}</ProgressStatus>
                 )}
                 {upload.error && (
                   <ProgressStatus style={{ color: '#f44336' }}>
@@ -855,7 +961,10 @@ const UploadPage = ({ currentUser, onLogout }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          Photos uploaded successfully! Redirecting to gallery...
+          <CloseButton onClick={handleCloseSuccessMessage}>
+            <FaClose />
+          </CloseButton>
+          Photos uploaded successfully!
         </SuccessMessage>
       )}
 
