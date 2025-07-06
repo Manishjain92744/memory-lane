@@ -31,13 +31,13 @@ git commit -m "Initial commit - Memory Lane app"
 
 ### 1.2 Create GitHub Repository
 1. Go to github.com and create a new repository
-2. Name it: `memory-lane-app`
+2. Name it: `memory-lane`
 3. Make it public
 4. Don't initialize with README (we already have files)
 
 ### 1.3 Push to GitHub
 ```bash
-git remote add origin https://github.com/YOUR_USERNAME/memory-lane-app.git
+git remote add origin https://github.com/YOUR_USERNAME/memory-lane.git
 git branch -M main
 git push -u origin main
 ```
@@ -48,7 +48,7 @@ git push -u origin main
 1. Go to [vercel.com](https://vercel.com)
 2. Sign up with your GitHub account
 3. Click "New Project"
-4. Import your `memory-lane-app` repository
+4. Import your `memory-lane` repository
 
 ### 2.2 Configure Frontend Deployment
 1. **Framework Preset**: Select "Create React App"
@@ -75,7 +75,7 @@ Click "Deploy" and wait for the build to complete.
 4. Select "Deploy from GitHub repo"
 
 ### 3.2 Configure Backend Deployment
-1. Select your `memory-lane-app` repository
+1. Select your `memory-lane` repository
 2. **Root Directory**: `Java/Spring_demo_project`
 3. Railway will automatically detect it's a Java project
 
@@ -125,12 +125,12 @@ If you prefer Render over Railway:
 4. Select your repository
 5. **Root Directory**: `Java/Spring_demo_project`
 6. **Build Command**: `./gradlew build`
-7. **Start Command**: `java -jar build/libs/Spring_demo_project-0.0.1-SNAPSHOT.jar`
+7. **Start Command**: `java -jar build/libs/memory-lane-1.0.0.jar`
 8. **Environment**: `Java`
 
 ## 📱 Testing Your Deployment
 
-1. **Frontend**: Visit your Vercel URL (e.g., `https://memory-lane-app.vercel.app`)
+1. **Frontend**: Visit your Vercel URL (e.g., `https://memory-lane.vercel.app`)
 2. **Backend**: Test API endpoints at your Railway/Render URL
 3. **Full App**: Test the complete user flow
 
@@ -166,8 +166,8 @@ npm start
 Once deployed, your Memory Lane app will be accessible to anyone with an internet connection!
 
 **Your app URLs will be:**
-- Frontend: `https://your-app-name.vercel.app`
-- Backend: `https://your-app-name.railway.app` (or render.com)
+- Frontend: `https://memory-lane.vercel.app`
+- Backend: `https://memory-lane.railway.app` (or render.com)
 
 ## 📞 Support
 

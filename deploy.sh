@@ -18,7 +18,7 @@ fi
 if ! git remote get-url origin > /dev/null 2>&1; then
     echo ""
     echo "🔗 Please add your GitHub repository as remote origin:"
-    echo "git remote add origin https://github.com/YOUR_USERNAME/memory-lane-app.git"
+    echo "git remote add origin https://github.com/YOUR_USERNAME/memory-lane.git"
     echo "git branch -M main"
     echo "git push -u origin main"
     echo ""

@@ -24,4 +24,4 @@ RUN ./gradlew build --no-daemon
 EXPOSE 8080
 
 # Run the application
-CMD ["java", "-jar", "build/libs/Spring_demo_project-0.0.1-SNAPSHOT.jar"] 
+CMD ["java", "-jar", "build/libs/memory-lane-1.0.0.jar"] 
