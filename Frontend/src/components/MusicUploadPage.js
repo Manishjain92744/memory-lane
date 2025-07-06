@@ -772,6 +772,14 @@ const MusicUploadPage = ({ currentUser, onLogout }) => {
           }}>
             <NavButton
               className="primary"
+              onClick={() => navigate('/gallery')}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              ← Back to Gallery
+            </NavButton>
+            <NavButton
+              className="primary"
               onClick={() => navigate('/upload')}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

@@ -83,6 +83,32 @@ const UploadButton = styled.button`
   }
 `;
 
+const BackButton = styled.button`
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+  margin-left: 15px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 20px;
+`;
+
 const LoadingOverlay = styled.div`
   position: absolute;
   top: 0;
@@ -116,7 +142,8 @@ const ImageUploader = ({
   onUploadStart, 
   onUploadComplete, 
   onUploadError, 
-  isLoading 
+  isLoading,
+  onBackToGallery 
 }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -252,14 +279,17 @@ const ImageUploader = ({
         )}
       </DropZone>
       
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+      <ButtonContainer>
         <UploadButton 
           onClick={handleUpload}
           disabled={!selectedFile || isLoading}
         >
           {isLoading ? 'Uploading...' : 'Upload Image'}
         </UploadButton>
-      </div>
+        <BackButton onClick={onBackToGallery}>
+          ← Back to Gallery
+        </BackButton>
+      </ButtonContainer>
     </UploaderContainer>
   );
 };
